@@ -33,7 +33,7 @@ window.onload = function () {
         rcCtx = rc.getContext("2d");
 
         // Copy image into canvas
-        scCtx.drawImage(si, 0, 0, 300, 225);
+        scCtx.drawImage(si, 0, 0, sc.width, sc.height);
 
         // Select an pixel from the source image.
         sc.addEventListener("click", function (clickEvent) {
@@ -49,9 +49,9 @@ window.onload = function () {
             }
 
             // Mark up on diff-canvas
-            var sourceData = scCtx.getImageData(0, 0, 300, 225),
+            var sourceData = scCtx.getImageData(0, 0, sc.width, sc.height),
                 sourcePixels = sourceData.data;
-            var dcData = dcCtx.getImageData(0, 0, 300, 225),
+            var dcData = dcCtx.getImageData(0, 0, dc.width, dc.height),
                 dcPixels = dcData.data;
             for(var i=0; i < dcPixels.length; i += 4) { // Iterate over RGBA-tuples
                 //console.log(i + " → " + sourcePixels[i]);
@@ -63,7 +63,7 @@ window.onload = function () {
             dcCtx.putImageData(dcData, 0, 0);
 
             // Do histogram cutoff in the diffed image
-            var resultData = rcCtx.getImageData(0, 0, 300, 225),
+            var resultData = rcCtx.getImageData(0, 0, rc.width, rc.height),
                 resultPixels = resultData.data;
 
             for(var i=0; i<resultPixels.length; i+=4) {
