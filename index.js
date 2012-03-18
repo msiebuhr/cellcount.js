@@ -189,52 +189,51 @@ window.onload = function () {
     sc.width = dc.width = rc.width = groupCanvas.width = si.width;
     sc.height = dc.height = rc.height = groupCanvas.height = si.height;
 
-        // Copy image into canvas
-        scCtx.drawImage(si, 0, 0, sc.width, sc.height);
+    // Copy image into canvas
+    scCtx.drawImage(si, 0, 0, sc.width, sc.height);
 
-        // Select an pixel from the source image.
-        sc.addEventListener("click", function (clickEvent) {
-            var pos = getCursorPosition(clickEvent, sc);
+    // Select an pixel from the source image.
+    sc.addEventListener("click", function (clickEvent) {
+        var pos = getCursorPosition(clickEvent, sc);
 
-            var pixelArray = scCtx.getImageData(pos.x, pos.y, 1, 1);
-            var pixelData = pixelArray.data;
-            var color = {
-                red: pixelData[0],
-                green: pixelData[1],
-                blue: pixelData[2],
-                alpha: pixelData[3]
-            }
+        var pixelArray = scCtx.getImageData(pos.x, pos.y, 1, 1);
+        var pixelData = pixelArray.data;
+        var color = {
+            red: pixelData[0],
+            green: pixelData[1],
+            blue: pixelData[2],
+            alpha: pixelData[3]
+        }
 
-            // Mark up on diff-canvas
-            var sourceData = scCtx.getImageData(0, 0, sc.width, sc.height),
-                sourcePixels = sourceData.data;
-            var dcData = dcCtx.getImageData(0, 0, dc.width, dc.height),
-                dcPixels = dcData.data;
-            for(var i=0; i < dcPixels.length; i += 4) { // Iterate over RGBA-tuples
-                dcPixels[i] = Math.abs(color.red - sourcePixels[i]);
-                dcPixels[i+1] = Math.abs(color.green - sourcePixels[i+1]);
-                dcPixels[i+2] = Math.abs(color.blue - sourcePixels[i+2]);
-                dcPixels[i+3] = 255;
-            }
-            dcCtx.putImageData(dcData, 0, 0);
+        // Mark up on diff-canvas
+        var sourceData = scCtx.getImageData(0, 0, sc.width, sc.height),
+        sourcePixels = sourceData.data;
+        var dcData = dcCtx.getImageData(0, 0, dc.width, dc.height),
+        dcPixels = dcData.data;
+        for(var i=0; i < dcPixels.length; i += 4) { // Iterate over RGBA-tuples
+            dcPixels[i] = Math.abs(color.red - sourcePixels[i]);
+            dcPixels[i+1] = Math.abs(color.green - sourcePixels[i+1]);
+            dcPixels[i+2] = Math.abs(color.blue - sourcePixels[i+2]);
+            dcPixels[i+3] = 255;
+        }
+        dcCtx.putImageData(dcData, 0, 0);
 
-            // Do histogram cutoff in the diffed image
-            var resultData = rcCtx.getImageData(0, 0, rc.width, rc.height),
-                resultPixels = resultData.data;
+        // Do histogram cutoff in the diffed image
+        var resultData = rcCtx.getImageData(0, 0, rc.width, rc.height),
+        resultPixels = resultData.data;
 
-            for(var i=0; i<resultPixels.length; i+=4) {
-                var OK = dcPixels[i] < 50 && dcPixels[i+1] < 50 && dcPixels[i+2] < 50;
-                resultPixels[i] = OK ? 0 : 255;
-                resultPixels[i+1] = OK ? 0 : 255;
-                resultPixels[i+2] = OK ? 0 : 255;
-                resultPixels[i+3] = 255;
-            }
+        for(var i=0; i<resultPixels.length; i+=4) {
+            var OK = dcPixels[i] < 50 && dcPixels[i+1] < 50 && dcPixels[i+2] < 50;
+            resultPixels[i] = OK ? 0 : 255;
+            resultPixels[i+1] = OK ? 0 : 255;
+            resultPixels[i+2] = OK ? 0 : 255;
+            resultPixels[i+3] = 255;
+        }
 
-            rcCtx.putImageData(resultData, 0, 0);
+        rcCtx.putImageData(resultData, 0, 0);
 
-            // Draw connected components to group_canvas
-            var components = getConnectedComponents(resultData);
-            connectedComponents2Canvas(components, groupCanvas);
-        }, false);
-
+        // Draw connected components to group_canvas
+        var components = getConnectedComponents(resultData);
+        connectedComponents2Canvas(components, groupCanvas);
+    }, false);
 };
