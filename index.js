@@ -37,7 +37,7 @@ function getConnectedComponents (imageData) {
     var pixels = imageData.data,
         height = imageData.height,
         width = imageData.width,
-        index, i, h, w; // Temporary variables used later
+        index, label, i, h, w; // Temporary variables used later
 
     // Create map of which groups are at which position
     var groupMap = new Array(pixels.length/4),
@@ -106,7 +106,7 @@ function getConnectedComponents (imageData) {
 
     // Create label remap table, so we can look up labels that should be re-mapped to other ones.
     var labelLookupTable = {};
-    for(var label=1; label<nextLabel; label++) {
+    for(label=1; label<nextLabel; label++) {
         var targetLabel = linked[label].sort(numericSort)[0];
         if (targetLabel && label !== targetLabel) {
             labelLookupTable[label] = targetLabel;
@@ -114,8 +114,8 @@ function getConnectedComponents (imageData) {
     }
 
     // Iterate through groupMap and find re-mappable labels.
-    for(var i=0; i<groupMap.length; i++) {
-        var label = groupMap[i];
+    for(i=0; i<groupMap.length; i++) {
+        label = groupMap[i];
 
         if(label !== undefined && label in labelLookupTable) {
             groupMap[i] = labelLookupTable[groupMap[i]];
