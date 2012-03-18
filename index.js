@@ -181,7 +181,13 @@ window.onload = function () {
         dc = document.getElementById("diff_canvas"),
         dcCtx = dc.getContext("2d"),
         rc = document.getElementById("result_canvas"),
-        rcCtx = rc.getContext("2d");
+        rcCtx = rc.getContext("2d"),
+        groupCanvas = document.getElementById("group_canvas"),
+        groupCanvasCtx = groupCanvas.getContext("2d");
+
+    // Resize canvases to match source image
+    sc.width = dc.width = rc.width = groupCanvas.width = si.width;
+    sc.height = dc.height = rc.height = groupCanvas.height = si.height;
 
         // Copy image into canvas
         scCtx.drawImage(si, 0, 0, sc.width, sc.height);
@@ -226,11 +232,8 @@ window.onload = function () {
 
             rcCtx.putImageData(resultData, 0, 0);
 
-            var components = getConnectedComponents(resultData);
-                groupCanvas = document.getElementById("group_canvas"),
-                groupCanvasCtx = groupCanvas.getContext("2d"),
-
             // Draw connected components to group_canvas
+            var components = getConnectedComponents(resultData);
             connectedComponents2Canvas(components, groupCanvas);
         }, false);
 
