@@ -205,7 +205,6 @@ window.onload = function () {
             var dcData = dcCtx.getImageData(0, 0, dc.width, dc.height),
                 dcPixels = dcData.data;
             for(var i=0; i < dcPixels.length; i += 4) { // Iterate over RGBA-tuples
-                //console.log(i + " → " + sourcePixels[i]);
                 dcPixels[i] = Math.abs(color.red - sourcePixels[i]);
                 dcPixels[i+1] = Math.abs(color.green - sourcePixels[i+1]);
                 dcPixels[i+2] = Math.abs(color.blue - sourcePixels[i+2]);
