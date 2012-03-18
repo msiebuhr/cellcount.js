@@ -1,3 +1,7 @@
+function numericSort(a, b) {
+    return a - b;
+}
+
 // {{{ getCursorPosition
 function getCursorPosition(e, gCanvasElement) {
     var x;
@@ -23,7 +27,7 @@ function getConnectedComponents (imageData) {
     var pixels = imageData.data,
         height = imageData.height,
         width = imageData.width,
-        index, h, w; // Temporary variables used later
+        index, i, h, w; // Temporary variables used later
 
     // Create map of which groups are at which position
     var groupMap = new Array(pixels.length/4),
@@ -63,8 +67,8 @@ function getConnectedComponents (imageData) {
                 getGroup(h-1, w-1), // North-West
                 getGroup(h,   w-1) // West
             ];
-            neighbours = _(neighbours).compact().sort(function (a, b) { return a-b; });
-            neighbours = _(neighbours).uniq();
+            neighbours = _(neighbours).compact().sort(numericSort);
+            neighbours = _(neighbours).uniq(true);
 
             if (neighbours.length === 0) {
                 // We're in something, but have no neighbours → new area!
@@ -76,18 +80,15 @@ function getConnectedComponents (imageData) {
                 groupMap[index] = neighbours[0];
 
                 // Discover neighbours' neighbours
-                var allNeighbours = _(neighbours)
-                    .chain()
-                    .map(function (neighbour) {
-                        return linked[neighbour];
-                    })
-                    .flatten()
-                    .value();
+                var allNeighbours = neighbours;
+                for (i=0; i<neighbours.length; i++) {
+                    allNeighbours = _.union(allNeighbours, linked[neighbours[i]]);
+                }
 
                 // Update all neighbours' with this + eachothers' neighbours
-                neighbours.forEach(function (neighbour) {
-                    linked[neighbour] = _.union(linked[neighbour], neighbours, allNeighbours);
-                });
+                for (i=0; i<neighbours.length; i++) {
+                    linked[neighbours[i]] = _.union(linked[neighbours[i]], allNeighbours);
+                }
             }
         }
     }
@@ -108,7 +109,7 @@ function getConnectedComponents (imageData) {
                 continue;
             }
 
-            map = map.sort(function (a,b) { return a-b; });
+            map = map.sort(numericSort);
 
             if (map && map.length !== 0 && map[0] !== group) {
                 groupMap[index] = map[0];
