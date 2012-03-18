@@ -2,7 +2,7 @@
 function getCursorPosition(e, gCanvasElement) {
     var x;
     var y;
-    if (e.pageX != undefined && e.pageY != undefined) {
+    if (e.pageX !== undefined && e.pageY !== undefined) {
         x = e.pageX;
         y = e.pageY;
     }
@@ -22,7 +22,8 @@ function getCursorPosition(e, gCanvasElement) {
 function getConnectedComponents (imageData) {
     var pixels = imageData.data,
         height = imageData.height,
-        width = imageData.width;
+        width = imageData.width,
+        index, h, w; // Temporary variables used later
 
     // Create map of which groups are at which position
     var groupMap = new Array(pixels.length/4),
@@ -46,12 +47,12 @@ function getConnectedComponents (imageData) {
 
 
     // Loop throuth the image, just looking at the red channel (assumes b/w image)
-    for(var h=0; h<height; h++) {
-        for(var w=0; w<width; w++) {
-            var index = hw2index(h, w);
+    for(h=0; h<height; h++) {
+        for(w=0; w<width; w++) {
+            index = hw2index(h, w);
 
             // Skip background
-            if (!(pixels[index*4] < 128)) {
+            if (pixels[index*4] > 128) {
                 continue;
             }
 
@@ -62,10 +63,10 @@ function getConnectedComponents (imageData) {
                 getGroup(h-1, w-1), // North-West
                 getGroup(h,   w-1) // West
             ];
-            neighbours = _(neighbours).compact().sort(function (a, b) { return a-b });
+            neighbours = _(neighbours).compact().sort(function (a, b) { return a-b; });
             neighbours = _(neighbours).uniq();
 
-            if (neighbours.length == 0) {
+            if (neighbours.length === 0) {
                 // We're in something, but have no neighbours → new area!
                 groupMap[index] = nextLabel;
                 linked[nextLabel] = [];
@@ -91,12 +92,12 @@ function getConnectedComponents (imageData) {
         }
     }
 
-    for(var h=0; h<height; h++) {
-        for(var w=0; w<width; w++) {
-            var index = hw2index(h, w);
+    for(h=0; h<height; h++) {
+        for(w=0; w<width; w++) {
+            index = hw2index(h, w);
 
             // Skip background
-            if (!(pixels[index*4] < 128)) {
+            if (pixels[index*4] > 128) {
                 continue;
             }
 
@@ -107,7 +108,7 @@ function getConnectedComponents (imageData) {
                 continue;
             }
 
-            map = map.sort(function (a,b) { return a-b });
+            map = map.sort(function (a,b) { return a-b; });
 
             if (map && map.length !== 0 && map[0] !== group) {
                 groupMap[index] = map[0];
@@ -120,14 +121,14 @@ function getConnectedComponents (imageData) {
         data: groupMap,
         height: height,
         width: width
-    }
+    };
 }
 
 // {{{ connectedComponents2Canvas
 function connectedComponents2Canvas(components, canvas) {
     var height = canvas.height,
         width = canvas.width,
-        ctx = canvas.getContext("2d")
+        ctx = canvas.getContext("2d"),
         cdata = ctx.getImageData(0, 0, width, height),
         cpixels = cdata.data;
 
@@ -138,7 +139,7 @@ function connectedComponents2Canvas(components, canvas) {
         {r: 138, g: 226, b: 52 }, // Chameleon1
         {r: 114, g: 159, b: 207}, // SkyBlue1
         {r: 173, g: 127, b: 168}, // Plum1
-        {r: 239, g: 41 , b: 41 }, // ScarletRed1
+        {r: 239, g: 41 , b: 41 }  // ScarletRed1
     ];
 
     function hw2index(h, w) {
@@ -183,7 +184,8 @@ window.onload = function () {
         rc = document.getElementById("result_canvas"),
         rcCtx = rc.getContext("2d"),
         groupCanvas = document.getElementById("group_canvas"),
-        groupCanvasCtx = groupCanvas.getContext("2d");
+        groupCanvasCtx = groupCanvas.getContext("2d"),
+        i; // Temporary variable for loops
 
     // Resize canvases to match source image
     sc.width = dc.width = rc.width = groupCanvas.width = si.width;
@@ -203,14 +205,14 @@ window.onload = function () {
             green: pixelData[1],
             blue: pixelData[2],
             alpha: pixelData[3]
-        }
+        };
 
         // Mark up on diff-canvas
         var sourceData = scCtx.getImageData(0, 0, sc.width, sc.height),
         sourcePixels = sourceData.data;
         var dcData = dcCtx.getImageData(0, 0, dc.width, dc.height),
         dcPixels = dcData.data;
-        for(var i=0; i < dcPixels.length; i += 4) { // Iterate over RGBA-tuples
+        for(i=0; i < dcPixels.length; i += 4) { // Iterate over RGBA-tuples
             dcPixels[i] = Math.abs(color.red - sourcePixels[i]);
             dcPixels[i+1] = Math.abs(color.green - sourcePixels[i+1]);
             dcPixels[i+2] = Math.abs(color.blue - sourcePixels[i+2]);
@@ -222,7 +224,7 @@ window.onload = function () {
         var resultData = rcCtx.getImageData(0, 0, rc.width, rc.height),
         resultPixels = resultData.data;
 
-        for(var i=0; i<resultPixels.length; i+=4) {
+        for(i=0; i<resultPixels.length; i+=4) {
             var OK = dcPixels[i] < 50 && dcPixels[i+1] < 50 && dcPixels[i+2] < 50;
             resultPixels[i] = OK ? 0 : 255;
             resultPixels[i+1] = OK ? 0 : 255;
