@@ -104,27 +104,21 @@ function getConnectedComponents (imageData) {
         }
     }
 
-    for(h=0; h<height; h++) {
-        for(w=0; w<width; w++) {
-            index = hw2index(h, w);
+    // Create label remap table, so we can look up labels that should be re-mapped to other ones.
+    var labelLookupTable = {};
+    for(var label=1; label<nextLabel; label++) {
+        var targetLabel = linked[label].sort(numericSort)[0];
+        if (targetLabel && label !== targetLabel) {
+            labelLookupTable[label] = targetLabel;
+        }
+    }
 
-            // Skip background
-            if (pixels[index*4] > 128) {
-                continue;
-            }
+    // Iterate through groupMap and find re-mappable labels.
+    for(var i=0; i<groupMap.length; i++) {
+        var label = groupMap[i];
 
-            var group = getGroup(h, w),
-                map = linked[group];
-
-            if (!map) {
-                continue;
-            }
-
-            map = map.sort(numericSort);
-
-            if (map && map.length !== 0 && map[0] !== group) {
-                groupMap[index] = map[0];
-            }
+        if(label !== undefined && label in labelLookupTable) {
+            groupMap[i] = labelLookupTable[groupMap[i]];
         }
     }
 
