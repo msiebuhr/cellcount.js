@@ -1,6 +1,15 @@
+/*
+ * Small image analysis-program for counting cells in microscope images.
+ *
+ * Morten Siebuhr
+ * <sbhr@sbhr.dk>
+ */
+
+// {{{ numericSort
 function numericSort(a, b) {
     return a - b;
 }
+// }}}
 
 // {{{ getCursorPosition
 function getCursorPosition(e, gCanvasElement) {
@@ -23,6 +32,7 @@ function getCursorPosition(e, gCanvasElement) {
 }
 // }}}
 
+// {{{ getConnectedComponents
 function getConnectedComponents (imageData) {
     var pixels = imageData.data,
         height = imageData.height,
@@ -34,6 +44,7 @@ function getConnectedComponents (imageData) {
         nextLabel = 1,
         linked = {}; // re-group from → to
 
+    // {{{ Internal helper functions
     function hw2index(h, w) {
         if (h<0 || h> height || w<0 || w>width) {
             return undefined;
@@ -48,7 +59,7 @@ function getConnectedComponents (imageData) {
         }
         return undefined;
     }
-
+    // }}}
 
     // Loop throuth the image, just looking at the red channel (assumes b/w image)
     for(h=0; h<height; h++) {
@@ -124,6 +135,7 @@ function getConnectedComponents (imageData) {
         width: width
     };
 }
+// }}}
 
 // {{{ connectedComponents2Canvas
 function connectedComponents2Canvas(components, canvas) {
@@ -195,6 +207,7 @@ window.onload = function () {
     // Copy image into canvas
     scCtx.drawImage(si, 0, 0, sc.width, sc.height);
 
+    // {{{ clickEventListener
     // Select an pixel from the source image.
     sc.addEventListener("click", function (clickEvent) {
         var pos = getCursorPosition(clickEvent, sc);
@@ -239,4 +252,5 @@ window.onload = function () {
         var components = getConnectedComponents(resultData);
         connectedComponents2Canvas(components, groupCanvas);
     }, false);
+    // }}}
 };
