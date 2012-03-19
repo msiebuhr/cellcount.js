@@ -145,7 +145,6 @@ function getConnectedComponents (imageData) {
     // Return object with data stored in various ways
     return {
         blobs: _.values(reverseIndex),
-        data: groupMap,
         height: height,
         width: width
     };
@@ -158,8 +157,10 @@ function connectedComponents2Canvas(components, canvas) {
         width = canvas.width,
         ctx = canvas.getContext("2d"),
         cdata = ctx.getImageData(0, 0, width, height),
-        cpixels = cdata.data;
+        cpixels = cdata.data,
+        i, j;
 
+    // Shamelessly stolen from the Tango-icon color palette
     var colors = [
         {r: 252, g: 233, b: 79 }, // Butter1
         {r: 252, g: 175, b: 62 }, // Orange1
@@ -170,35 +171,27 @@ function connectedComponents2Canvas(components, canvas) {
         {r: 239, g: 41 , b: 41 }  // ScarletRed1
     ];
 
-    function hw2index(h, w) {
-        if (h<0 || h> height || w<0 || w>width) {
-            return undefined;
-        }
-        return h*width + w;
+    // First, re-paint the canvas white
+    for (i=0; i<cpixels.length; i++) {
+        cpixels[i] = 255;
     }
 
-    for(var h=0; h<height; h++) {
-        for(var w=0; w<width; w++) {
-            var index = hw2index(h, w);
+    // Draw the blobs
+    for (i=0; i<components.blobs.length; i++) {
+        var pixels = components.blobs[i],
+            color = colors[i % colors.length];
 
-            // Skip background
-            if (!components.data[index]) {
-                cpixels[index*4] = 255;
-                cpixels[index*4+1] = 255;
-                cpixels[index*4+2] = 255;
-                cpixels[index*4+3] = 255;
-                continue;
-            }
+        // Loop through the pixels in the blob
+        for (j=0; j<pixels.length; j++) {
+            var pixel = pixels[j],
+                index = pixel.x + pixel.y*width;
 
-            var group = components.data[index],
-                groupColor = colors[group % colors.length];
-
-            cpixels[index*4] = groupColor.r;
-            cpixels[index*4+1] = groupColor.g;
-            cpixels[index*4+2] = groupColor.b;
-            cpixels[index*4+3] = 255;
+            cpixels[pixel.index*4] = color.r;
+            cpixels[pixel.index*4+1] = color.g;
+            cpixels[pixel.index*4+2] = color.b;
         }
     }
+
     ctx.putImageData(cdata, 0, 0);
 }
 // }}}
@@ -264,8 +257,12 @@ window.onload = function () {
         rcCtx.putImageData(resultData, 0, 0);
 
         // Draw connected components to group_canvas
-        var components = getConnectedComponents(resultData);
-        connectedComponents2Canvas(components, groupCanvas);
+        window.setTimeout(function () {
+            var components = getConnectedComponents(resultData);
+            window.setTimeout(function () {
+                connectedComponents2Canvas(components, groupCanvas);
+            }, 1);
+        }, 1);
     }, false);
     // }}}
 };
