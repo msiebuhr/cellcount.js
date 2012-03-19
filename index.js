@@ -113,17 +113,38 @@ function getConnectedComponents (imageData) {
         }
     }
 
-    // Iterate through groupMap and find re-mappable labels.
+    // Iterate through groupMap and find re-mappable labels + create reverse
+    // index of where pixels are...
+    var reverseIndex = {};
     for(i=0; i<groupMap.length; i++) {
         label = groupMap[i];
 
-        if(label !== undefined && label in labelLookupTable) {
-            groupMap[i] = labelLookupTable[groupMap[i]];
+        if (label === undefined) {
+            continue;
         }
+
+        // Re-label the group, if it's in the lookup table
+        if(label in labelLookupTable) {
+            label = labelLookupTable[label];
+            groupMap[i] = label;
+        }
+
+        // Initialize reverse index entry if it's missing
+        if(!(label in reverseIndex)) {
+            reverseIndex[label] = [];
+        }
+
+        // Update reverse map
+        reverseIndex[label].push({
+            index: i,
+            x: i % width,
+            y: (i - (i % width)) / width
+        });
     }
 
-    // TODO: Create cleaned output
+    // Return object with data stored in various ways
     return {
+        blobs: _.values(reverseIndex),
         data: groupMap,
         height: height,
         width: width
