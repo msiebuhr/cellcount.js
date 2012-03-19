@@ -196,6 +196,33 @@ function connectedComponents2Canvas(components, canvas) {
 }
 // }}}
 
+// {{{ handleNewFile
+function handleNewFile(fileList) {
+
+    var si = document.getElementById("source_image"),
+        sc = document.getElementById("source_canvas"),
+        scCtx = sc.getContext("2d"),
+        dc = document.getElementById("diff_canvas"),
+        rc = document.getElementById("result_canvas"),
+        groupCanvas = document.getElementById("group_canvas");
+
+    // Insert new image
+    //si.img = fileList[0];
+    var reader = new FileReader();
+    reader.onload = function(dataURL) {
+        si.src = dataURL.target.result;
+
+        // Resize canvases to match source image
+        sc.width = dc.width = rc.width = groupCanvas.width = si.width;
+        sc.height = dc.height = rc.height = groupCanvas.height = si.height;
+
+        // Copy image into canvas
+        scCtx.drawImage(si, 0, 0, sc.width, sc.height);
+    };
+    reader.readAsDataURL(fileList[0]);
+}
+// }}}
+
 window.onload = function () {
     var si = document.getElementById("source_image"),
         sc = document.getElementById("source_canvas"),
