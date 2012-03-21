@@ -72,14 +72,20 @@ function getConnectedComponents (imageData) {
             }
 
             // Check neighbours; north and west
-            var neighbours = [
+            var allNeighbours = [
                 getGroup(h-1, w+1), // North-East
                 getGroup(h-1, w), // North
                 getGroup(h-1, w-1), // North-West
                 getGroup(h,   w-1) // West
             ];
-            neighbours = _(neighbours).compact().sort(numericSort);
-            neighbours = _(neighbours).uniq(true);
+            var neighbours = [];
+            for(i=0; i<allNeighbours.length; i++) {
+                if (allNeighbours[i] === undefined || neighbours.indexOf(allNeighbours[i]) !== -1) {
+                    continue;
+                }
+
+                neighbours.push(allNeighbours[i]);
+            }
 
             if (neighbours.length === 0) {
                 // We're in something, but have no neighbours → new area!
@@ -87,6 +93,9 @@ function getConnectedComponents (imageData) {
                 linked[nextLabel] = [];
                 nextLabel += 1;
             } else {
+                // Sort neighbour list, so it's easy to pick the smallest label.
+                neighbours = neighbours.sort(numericSort);
+
                 // We're in something adjacent to something else
                 groupMap[index] = neighbours[0];
 
