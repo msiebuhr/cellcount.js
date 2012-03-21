@@ -107,7 +107,7 @@ function getConnectedComponents (imageData) {
 
                 // Update all neighbours' with this + eachothers' neighbours
                 for (i=0; i<neighbours.length; i++) {
-                    linked[neighbours[i]] = _.union(linked[neighbours[i]], allNeighbours);
+                    linked[neighbours[i]] = allNeighbours;
                 }
             }
         }
