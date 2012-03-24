@@ -117,8 +117,10 @@ function getConnectedComponents (imageData) {
     var labelLookupTable = {};
     for(label=1; label<nextLabel; label++) {
         var targetLabel = linked[label].sort(numericSort)[0];
-        if (targetLabel && label !== targetLabel) {
-            labelLookupTable[label] = targetLabel;
+
+        // Map each element in the link table reversely to all it's neighbours (the loop above misses some, for some reason...)
+        for(i=0; i<linked[label].length; i++) {
+            labelLookupTable[linked[label][i]] = Math.min(linked[label][i] ? linked[label][i] : Number.MAX_VALUE, targetLabel);
         }
     }
 
