@@ -241,6 +241,18 @@ function handleNewFile(fileList) {
 
 // {{{ window.onload set-up
 window.onload = function () {
+    /* Match upload-button to hidden element on page */
+    var fileSelect = document.getElementById("fileSelect"),  
+        fileElem = document.getElementById("fileElem");  
+
+    fileSelect.addEventListener("click", function (e) {  
+        if (fileElem) {  
+            fileElem.click();  
+        }  
+        e.preventDefault(); // prevent navigation to "#"  
+    }, false);
+
+    /* Set up canvases */
     var si = document.getElementById("source_image"),
         sc = document.getElementById("source_canvas"),
         scCtx = sc.getContext("2d"),
