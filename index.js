@@ -216,20 +216,19 @@ function handleNewFile(fileList) {
 
         // Set image source to data://-URL
         var si = document.getElementById("source_image");
-        si.src = dataURL.target.result;
+            si.src = dataURL.target.result;
 
         // Wait a tick for changes to propagate, then re-size canvases
         window.setTimeout(function () {
             var sc = document.getElementById("source_canvas"),
                 scCtx = sc.getContext("2d"),
-                dc = document.getElementById("diff_canvas"),
                 rc = document.getElementById("result_canvas"),
                 groupCanvas = document.getElementById("group_canvas");
 
 
             // Resize canvases to match source image
-            sc.width = dc.width = rc.width = groupCanvas.width = si.width;
-            sc.height = dc.height = rc.height = groupCanvas.height = si.height;
+            sc.width = rc.width = groupCanvas.width = si.width;
+            sc.height = rc.height = groupCanvas.height = si.height;
 
             // Copy image into canvas
             scCtx.drawImage(si, 0, 0, si.width, si.height);
@@ -256,8 +255,6 @@ window.onload = function () {
     var si = document.getElementById("source_image"),
         sc = document.getElementById("source_canvas"),
         scCtx = sc.getContext("2d"),
-        dc = document.getElementById("diff_canvas"),
-        dcCtx = dc.getContext("2d"),
         rc = document.getElementById("result_canvas"),
         rcCtx = rc.getContext("2d"),
         groupCanvas = document.getElementById("group_canvas"),
@@ -265,8 +262,8 @@ window.onload = function () {
         i; // Temporary variable for loops
 
     // Resize canvases to match source image
-    sc.width = dc.width = rc.width = groupCanvas.width = si.width;
-    sc.height = dc.height = rc.height = groupCanvas.height = si.height;
+    sc.width = rc.width = groupCanvas.width = si.width;
+    sc.height = rc.height = groupCanvas.height = si.height;
 
     // Copy image into canvas
     scCtx.drawImage(si, 0, 0, sc.width, sc.height);
@@ -287,23 +284,15 @@ window.onload = function () {
 
         // Mark up on diff-canvas
         var sourceData = scCtx.getImageData(0, 0, sc.width, sc.height),
-        sourcePixels = sourceData.data;
-        var dcData = dcCtx.getImageData(0, 0, dc.width, dc.height),
-        dcPixels = dcData.data;
-        for(i=0; i < dcPixels.length; i += 4) { // Iterate over RGBA-tuples
-            dcPixels[i] = Math.abs(color.red - sourcePixels[i]);
-            dcPixels[i+1] = Math.abs(color.green - sourcePixels[i+1]);
-            dcPixels[i+2] = Math.abs(color.blue - sourcePixels[i+2]);
-            dcPixels[i+3] = 255;
-        }
-        dcCtx.putImageData(dcData, 0, 0);
-
-        // Do histogram cutoff in the diffed image
-        var resultData = rcCtx.getImageData(0, 0, rc.width, rc.height),
-        resultPixels = resultData.data;
+            sourcePixels = sourceData.data;
+            resultData = rcCtx.getImageData(0, 0, rc.width, rc.height),
+            resultPixels = resultData.data;
 
         for(i=0; i<resultPixels.length; i+=4) {
-            var OK = dcPixels[i] < 50 && dcPixels[i+1] < 50 && dcPixels[i+2] < 50;
+            var redDiff = Math.abs(color.red - sourcePixels[i]);
+                greenDiff = Math.abs(color.green - sourcePixels[i+1]);
+                blueDiff = Math.abs(color.blue - sourcePixels[i+2]);
+            var OK = redDiff < 50 && greenDiff < 50 && blueDiff < 50;
             resultPixels[i] = OK ? 0 : 255;
             resultPixels[i+1] = OK ? 0 : 255;
             resultPixels[i+2] = OK ? 0 : 255;

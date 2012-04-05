@@ -20,8 +20,6 @@
 		</div>
 	</div>
 
-
-
 	<!-- Upload new images -->
 	<input type="file" id="fileElem" accept="image/*" id="input" style="display:inline; width:0px" onchange="handleNewFile(this.files)">
 	<a href="#" id="fileSelect" class="btn btn-primary">Select an image to analyze</a>
@@ -30,9 +28,6 @@
 	<h2>Source Image <small>Click on a cell to detect similar areas</small></h2>
 	<img id="source_image" src="./blob-test1.png" style="display: none;"/>
 	<canvas id="source_canvas"></canvas>
-
-	<!-- Temporary canvas for calculations; nice for debugging -->
-	<canvas id="diff_canvas" style="display: none;"></canvas>
 
 	<!-- Binary image of cell-selection -->
 	<h2>Color-match <small>Cell-colored parts of the image</small></h2>
