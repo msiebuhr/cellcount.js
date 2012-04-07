@@ -212,6 +212,7 @@ function setupCanvases(maxSize) {
     /* Set up canvases */
     var si = document.getElementById("source_image"),
         sc = document.getElementById("source_canvas"),
+        scCtx = sc.getContext("2d"),
         rc = document.getElementById("result_canvas"),
         groupCanvas = document.getElementById("group_canvas"),
         height = si.height,
