@@ -207,6 +207,32 @@ function connectedComponents2Canvas(components, canvas) {
 }
 // }}}
 
+// {{{ setupCanvases
+function setupCanvases(maxSize) {
+    /* Set up canvases */
+    var si = document.getElementById("source_image"),
+        sc = document.getElementById("source_canvas"),
+        rc = document.getElementById("result_canvas"),
+        groupCanvas = document.getElementById("group_canvas"),
+        height = si.height,
+        width = si.width;
+
+    // If no maxSize is given, we invent one...
+    if(maxSize !== undefined) {
+        var scale = maxSize / Math.max(maxSize, si.width, si.height);
+        height = Math.round(si.height * scale);
+        width = Math.round(si.width * scale);
+    }
+
+    // Resize canvases to match source image
+    sc.width = rc.width = groupCanvas.width = width;
+    sc.height = rc.height = groupCanvas.height = height;
+
+    // Copy image into canvas
+    scCtx.drawImage(si, 0, 0, sc.width, sc.height);
+}
+// }}} setupCanvases
+
 // {{{ handleNewFile
 function handleNewFile(fileList) {
 
@@ -220,18 +246,7 @@ function handleNewFile(fileList) {
 
         // Wait a tick for changes to propagate, then re-size canvases
         window.setTimeout(function () {
-            var sc = document.getElementById("source_canvas"),
-                scCtx = sc.getContext("2d"),
-                rc = document.getElementById("result_canvas"),
-                groupCanvas = document.getElementById("group_canvas");
-
-
-            // Resize canvases to match source image
-            sc.width = rc.width = groupCanvas.width = si.width;
-            sc.height = rc.height = groupCanvas.height = si.height;
-
-            // Copy image into canvas
-            scCtx.drawImage(si, 0, 0, si.width, si.height);
+            setupCanvases();
         }, 1);
     };
     reader.readAsDataURL(fileList[0]);
@@ -251,9 +266,7 @@ window.onload = function () {
         e.preventDefault(); // prevent navigation to "#"
     }, false);
 
-    /* Set up canvases */
-    var si = document.getElementById("source_image"),
-        sc = document.getElementById("source_canvas"),
+    var sc = document.getElementById("source_canvas"),
         scCtx = sc.getContext("2d"),
         rc = document.getElementById("result_canvas"),
         rcCtx = rc.getContext("2d"),
@@ -261,12 +274,8 @@ window.onload = function () {
         groupCanvasCtx = groupCanvas.getContext("2d"),
         i; // Temporary variable for loops
 
-    // Resize canvases to match source image
-    sc.width = rc.width = groupCanvas.width = si.width;
-    sc.height = rc.height = groupCanvas.height = si.height;
-
-    // Copy image into canvas
-    scCtx.drawImage(si, 0, 0, sc.width, sc.height);
+    /* Set up canvases */
+    setupCanvases();
 
     // {{{ clickEventListener
     // Select an pixel from the source image.
