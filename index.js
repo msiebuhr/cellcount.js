@@ -72,19 +72,19 @@ function getConnectedComponents (imageData) {
             }
 
             // Check neighbours; north and west
-            var allNeighbours = [
+            var neighbourGroups = [
                 getGroup(h-1, w+1), // North-East
                 getGroup(h-1, w), // North
                 getGroup(h-1, w-1), // North-West
                 getGroup(h,   w-1) // West
             ];
             var neighbours = [];
-            for(i=0; i<allNeighbours.length; i++) {
-                if (allNeighbours[i] === undefined || neighbours.indexOf(allNeighbours[i]) !== -1) {
+            for(i=0; i<neighbourGroups.length; i++) {
+                if (neighbourGroups[i] === undefined || neighbours.indexOf(neighbourGroups[i]) !== -1) {
                     continue;
                 }
 
-                neighbours.push(allNeighbours[i]);
+                neighbours.push(neighbourGroups[i]);
             }
 
             if (neighbours.length === 0) {
@@ -294,7 +294,7 @@ window.onload = function () {
 
         // Mark up on diff-canvas
         var sourceData = scCtx.getImageData(0, 0, sc.width, sc.height),
-            sourcePixels = sourceData.data;
+            sourcePixels = sourceData.data,
             resultData = rcCtx.getImageData(0, 0, rc.width, rc.height),
             resultPixels = resultData.data;
 
@@ -314,17 +314,18 @@ window.onload = function () {
         // Find and draw connected components in the image
         window.setTimeout(function () {
             // Find connected components
-            var components = getConnectedComponents(resultData);
+            var components = getConnectedComponents(resultData),
+                i, j;
 
             // Which one has our original click in it?
             var index = pos.y * components.width + pos.x,
                 largestBlobSize = 1e10,
                 sourceBlobSize = 0;
-            for (var i=0; i<components.blobs.length; i++) {
+            for (i=0; i<components.blobs.length; i++) {
                 var pixels = components.blobs[i];
 
                 // Loop through the pixels in the blob
-                for (var j=0; j<pixels.length; j++) {
+                for (j=0; j<pixels.length; j++) {
                     if (pixels[j].index === index) {
                         sourceBlobSize = pixels.length;
                     }
@@ -336,17 +337,17 @@ window.onload = function () {
 
             // Rough Histogram of blob sizes
             var histogram = new Array(101);
-            for (var i=0; i<histogram.length; i++) {
+            for (i=0; i<histogram.length; i++) {
                 histogram[i] = {bin: 0, accum: 0};
             }
-            for (var i=0; i<components.blobs.length; i++) {
+            for (i=0; i<components.blobs.length; i++) {
                 var dist = Math.abs(components.blobs[i].length - sourceBlobSize) * 100 / sourceBlobSize;
                 dist = Math.round(dist);
                 dist = Math.min(dist, 100);
                 //var pixels = Math.ceil(components.blobs[i].length/10)*10;
 
                 histogram[dist].bin += 1;
-                for (var j=dist; j<=100; j++) {
+                for (j=dist; j<=100; j++) {
                     histogram[j].accum += 1;
                 }
             }
@@ -354,7 +355,7 @@ window.onload = function () {
             // Write result to table
             var tableElem = document.getElementById("result"),
                 table = "<thead><th>Δ%</th><th>Bin</th><th>∑</th></thead>";
-            for (var i=0; i<histogram.length; i++) {
+            for (i=0; i<histogram.length; i++) {
                 table = table + "<tr><td>" + i + "%</td><td>" + histogram[i].bin + "</td><td>" + histogram[i].accum + "</td></tr>\n";
             }
             tableElem.innerHTML = table;
