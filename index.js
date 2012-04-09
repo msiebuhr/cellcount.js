@@ -210,11 +210,11 @@ function connectedComponents2Canvas(components, canvas) {
 // {{{ setupCanvases
 function setupCanvases(maxSize) {
     /* Set up canvases */
-    var si = document.getElementById("source_image"),
-        sc = document.getElementById("source_canvas"),
+    var si = $("#source_image")[0],
+        sc = $("#source_canvas")[0],
         scCtx = sc.getContext("2d"),
-        rc = document.getElementById("result_canvas"),
-        groupCanvas = document.getElementById("group_canvas"),
+        rc = $("#result_canvas")[0],
+        groupCanvas = $("#group_canvas")[0],
         height = si.height,
         width = si.width;
 
@@ -242,8 +242,7 @@ function handleNewFile(fileList) {
     reader.onload = function(dataURL) {
 
         // Set image source to data://-URL
-        var si = document.getElementById("source_image");
-            si.src = dataURL.target.result;
+        $("#source_image")[0].src = dataURL.target.result;
 
         // Wait a tick for changes to propagate, then re-size canvases
         window.setTimeout(function () {
@@ -254,33 +253,30 @@ function handleNewFile(fileList) {
 }
 // }}}
 
-// {{{ window.onload set-up
-window.onload = function () {
+// {{{ document -> ready()
+$(document).ready(function () {
     /* Match upload-button to hidden element on page */
-    var fileSelect = document.getElementById("fileSelect"),
-        fileElem = document.getElementById("fileElem");
-
-    fileSelect.addEventListener("click", function (e) {
-        if (fileElem) {
-            fileElem.click();
-        }
+    $("#fileSelect").click(function (e) {
+        $("#fileElem").click();
         e.preventDefault(); // prevent navigation to "#"
-    }, false);
+    });
 
-    var sc = document.getElementById("source_canvas"),
+    /* Set up canvases */
+    $("#source_image").load(function () {
+        setupCanvases();
+    });
+
+    var sc = $("#source_canvas")[0],
         scCtx = sc.getContext("2d"),
-        rc = document.getElementById("result_canvas"),
+        rc = $("#result_canvas")[0],
         rcCtx = rc.getContext("2d"),
-        groupCanvas = document.getElementById("group_canvas"),
+        groupCanvas = $("#group_canvas")[0],
         groupCanvasCtx = groupCanvas.getContext("2d"),
         i; // Temporary variable for loops
 
-    /* Set up canvases */
-    setupCanvases();
-
     // {{{ clickEventListener
     // Select an pixel from the source image.
-    sc.addEventListener("click", function (clickEvent) {
+    $("#source_canvas").click(function (clickEvent) {
         var pos = getCursorPosition(clickEvent, sc);
 
         var pixelArray = scCtx.getImageData(pos.x, pos.y, 1, 1);
@@ -353,19 +349,18 @@ window.onload = function () {
             }
 
             // Write result to table
-            var tableElem = document.getElementById("result"),
-                table = "<thead><th>Δ%</th><th>Bin</th><th>∑</th></thead>";
+            var table = "<thead><th>Δ%</th><th>Bin</th><th>∑</th></thead>";
             for (i=0; i<histogram.length; i++) {
                 table = table + "<tr><td>" + i + "%</td><td>" + histogram[i].bin + "</td><td>" + histogram[i].accum + "</td></tr>\n";
             }
-            tableElem.innerHTML = table;
+            $("#result").html(table);
 
             // Update output drawing
             window.setTimeout(function () {
                 connectedComponents2Canvas(components, groupCanvas);
             }, 1);
         }, 1);
-    }, false);
+    });
     // }}}
-};
+});
 // }}}
