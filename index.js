@@ -279,14 +279,24 @@ $(document).ready(function () {
     $("#source_canvas").click(function (clickEvent) {
         var pos = getCursorPosition(clickEvent, sc);
 
-        var pixelArray = scCtx.getImageData(pos.x, pos.y, 1, 1);
-        var pixelData = pixelArray.data;
-        var color = {
-            red: pixelData[0],
-            green: pixelData[1],
-            blue: pixelData[2],
-            alpha: pixelData[3]
-        };
+        // "Fix" clicks on border-pixels by bumping them one pixel into frame.
+        pos.x = Math.max(pos.x, 1);
+        pos.x = Math.min(pos.x, sc.width - 1);
+        pos.y = Math.max(pos.y, 1);
+        pos.y = Math.min(pos.y, sc.height - 1);
+
+        // Grab a 3×3 area and average the colors
+        var pixelArray = scCtx.getImageData(pos.x - 1, pos.y - 1, 3, 3),
+            pixelData = pixelArray.data;
+            color = { red: 0, green: 0, blue: 0, alpha: 255 };
+        for(i=0; i<pixelData.length; i+=4) {
+            color.red += pixelData[i];
+            color.green += pixelData[i+1];
+            color.blue += pixelData[i+2];
+        }
+        color.red /= 9;
+        color.green /= 9;
+        color.blue /= 9;
 
         // Mark up on diff-canvas
         var sourceData = scCtx.getImageData(0, 0, sc.width, sc.height),
