@@ -192,10 +192,8 @@ function getConnectedComponents (imageData) {
 
 // {{{ connectedComponents2Canvas
 function connectedComponents2Canvas(components, canvas) {
-    var height = canvas.height,
-        width = canvas.width,
-        ctx = canvas.getContext("2d"),
-        cdata = ctx.getImageData(0, 0, width, height),
+    var ctx = canvas.getContext("2d"),
+        cdata = ctx.createImageData(canvas.width, canvas.height),
         cpixels = cdata.data,
         i, j;
 
@@ -223,7 +221,7 @@ function connectedComponents2Canvas(components, canvas) {
         // Loop through the pixels in the blob
         for (j=0; j<pixels.length; j++) {
             var pixel = pixels[j],
-                index = pixel.x + pixel.y*width;
+                index = pixel.x + (pixel.y * canvas.width);
 
             cpixels[pixel.index*4] = color.r;
             cpixels[pixel.index*4+1] = color.g;
@@ -312,7 +310,7 @@ $(document).ready(function () {
         // Mark up on diff-canvas
         var sourceData = scCtx.getImageData(0, 0, sc.width, sc.height),
             sourcePixels = sourceData.data,
-            resultData = rcCtx.getImageData(0, 0, rc.width, rc.height),
+            resultData = rcCtx.createImageData(rc.width, rc.height),
             resultPixels = resultData.data;
 
         for(i=0; i<resultPixels.length; i+=4) {
