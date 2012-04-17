@@ -294,9 +294,9 @@ $(document).ready(function () {
             color.green += pixelData[i+1];
             color.blue += pixelData[i+2];
         }
-        color.red /= 9;
-        color.green /= 9;
-        color.blue /= 9;
+        color.red = Math.round(color.red / 9);
+        color.green = Math.round(color.green / 9);
+        color.blue = Math.round(color.blue / 9);
 
         // Mark up on diff-canvas
         var sourceData = scCtx.getImageData(0, 0, sc.width, sc.height),
