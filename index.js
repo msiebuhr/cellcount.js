@@ -11,6 +11,34 @@ function numericSort(a, b) {
 }
 // }}}
 
+// {{{ getCanvasColorSample
+function getCanvasColorSample(x, y, canvasElement) {
+    // "Fix" clicks on border-pixels by bumping them one pixel into frame.
+    x = Math.max(x, 1);
+    x = Math.min(x, canvasElement.width - 1);
+    y = Math.max(y, 1);
+    y = Math.min(y, canvasElement.height - 1);
+
+    // Grab a 3×3 area and average the colors
+    var canvasCTX = canvasElement.getContext("2d"),
+        pixelArray = canvasCTX.getImageData(x - 1, y - 1, 3, 3),
+        pixelData = pixelArray.data;
+        color = { red: 0, green: 0, blue: 0, alpha: 255 };
+
+    for(i=0; i<pixelData.length; i+=4) {
+        color.red += pixelData[i];
+        color.green += pixelData[i+1];
+        color.blue += pixelData[i+2];
+    }
+
+    color.red = Math.round(color.red / 9);
+    color.green = Math.round(color.green / 9);
+    color.blue = Math.round(color.blue / 9);
+
+    return color;
+}
+// }}}
+
 // {{{ getCursorPosition
 function getCursorPosition(e, gCanvasElement) {
     var x;
@@ -277,26 +305,9 @@ $(document).ready(function () {
     // {{{ clickEventListener
     // Select an pixel from the source image.
     $("#source_canvas").click(function (clickEvent) {
-        var pos = getCursorPosition(clickEvent, sc);
-
-        // "Fix" clicks on border-pixels by bumping them one pixel into frame.
-        pos.x = Math.max(pos.x, 1);
-        pos.x = Math.min(pos.x, sc.width - 1);
-        pos.y = Math.max(pos.y, 1);
-        pos.y = Math.min(pos.y, sc.height - 1);
-
-        // Grab a 3×3 area and average the colors
-        var pixelArray = scCtx.getImageData(pos.x - 1, pos.y - 1, 3, 3),
-            pixelData = pixelArray.data;
-            color = { red: 0, green: 0, blue: 0, alpha: 255 };
-        for(i=0; i<pixelData.length; i+=4) {
-            color.red += pixelData[i];
-            color.green += pixelData[i+1];
-            color.blue += pixelData[i+2];
-        }
-        color.red = Math.round(color.red / 9);
-        color.green = Math.round(color.green / 9);
-        color.blue = Math.round(color.blue / 9);
+        // Get color-sample around the clicked position
+        var pos = getCursorPosition(clickEvent, sc),
+            color = getCanvasColorSample(pos.x, pos.y, sc);
 
         // Mark up on diff-canvas
         var sourceData = scCtx.getImageData(0, 0, sc.width, sc.height),
